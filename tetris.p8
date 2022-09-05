@@ -12,7 +12,6 @@ function _init ()
 end
 
 function _draw ()
-	--if (true) then return end
 	cls()
 	drw_buff(buffer,bx,by,wsz)
 	drw_blk(
@@ -24,6 +23,7 @@ function _draw ()
 		c_rot,
 		wsz
 	)
+	print(DEBUG)
 end
 
 function _update60()
@@ -59,10 +59,11 @@ function _update60()
 	else
 		write_blk(c_blk,c_x,c_y,c_rot)
 		init_blk()
+		chk_lns(buffer)
+		prt_buff(buffer)
 	end
 	
 	if (btnp(❎)) then
-		prt_buff(buffer)
 		new_rot=(c_rot + 1) % 4
 		b_fits_rot=fits(c_blk,c_x,c_y,new_rot)
 		b_wcnx_rot=wcnx(c_blk,c_x,new_rot)
@@ -179,7 +180,44 @@ function prt_buff (buff)
 			j = 0
 		end
 	end
-	printh(res, "log.txt", true, true)
+	printh(res, "log_buff.txt", true, true)
+end
+
+function chk_lns (buff)
+	lns = {}
+	ln_ct = 0
+	full_ct = 0
+	for i, p in pairs(buff) do
+		if (p != wc) then
+			full_ct += 1
+		else
+			full_ct = 0
+		end
+		if (i % ww == 0) then
+			if (full_ct == ww) then
+				ln_ct += 1
+				lns[ln_ct] = i / ww
+			end
+			full_ct = 0
+		end
+	end
+
+	if (ln_ct > 0) then
+		clr_lns(buff, lns, ln_ct)
+	end
+end
+
+function clr_lns (buff, lns, ct)
+	j = ct
+	cursor = ww*wh
+	for i=ww*wh,1,-1 do
+		while ((i / ww) == lns[j]) do
+			cursor -= ww
+			j -= 1
+		end
+		buff[i] = buff[cursor]
+		cursor -= 1
+	end
 end
 
 function write_blk (b,x,y,r)
@@ -216,6 +254,8 @@ function init_blk ()
 end
 -->8
 --variables
+
+DEBUG="TEST"
 
 -- define assets
 bbx=0
